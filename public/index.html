@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommender System</title>
+</head>
+<body>
+    <h1>Movie Recommender</h1>
+
+    <label for="user">Select User:</label>
+    <select id="user">
+        <option value="Alice">Alice</option>
+        <option value="Bob">Bob</option>
+        <option value="Carol">Carol</option>
+        <option value="Dave">Dave</option>
+        <option value="Eve">Eve</option>
+    </select>
+
+    <button id="getRecommendations" onclick="Activate">Get Recommendations</button>
+
+    <h2>Recommendations:</h2>
+    <ul id="recommendationList"></ul>
+
+    <script>
+        function Activate(){
+            const user = document.getElementById('user').value;
+
+            console.log("User : ",user);
+
+            fetch('http://localhost:3000/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const recommendationList = document.getElementById('recommendationList');
+                console.log('Response RecommendationList : ',recommendationList);
+                recommendationList.innerHTML = '';
+
+                if(recommendationList==[])recommendationList.innerHTML='No recommendation list.';
+
+                data.forEach(recommendation => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${recommendation.movie} (Predicted score: ${recommendation.score.toFixed(2)})`;
+                    recommendationList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching recommendations:', error));
+        }
+
+
+        document.getElementById('getRecommendations').addEventListener('click', () => {
+            const user = document.getElementById('user').value;
+
+            console.log("User : ",user);
+
+            fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const recommendationList = document.getElementById('recommendationList');
+                recommendationList.innerHTML = '';
+
+                data.forEach(recommendation => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${recommendation.movie} (Predicted score: ${recommendation.score.toFixed(2)})`;
+                    recommendationList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching recommendations:', error));
+        });
+    </script>
+</body>
+</html>
